@@ -2,13 +2,13 @@
 
 if [ ! -e Beads.zip ]; then
 	echo "Downloading Beads library..."
-	wget http://www.beadsproject.net/downloads/Beads.zip
+	wget --progress=dot:mega http://www.beadsproject.net/downloads/Beads.zip
 	echo "done"
 fi
 
 if [ ! -e gervill-1.0.zip ]; then
 	echo "Downloading gervill..."
-	wget 'http://downloads.sourceforge.net/project/rasmusdsp/gervill/Gervill%201.0/gervill-1.0.zip'
+	wget --progress=dot:mega 'http://downloads.sourceforge.net/project/rasmusdsp/gervill/Gervill%201.0/gervill-1.0.zip'
 	echo "done"
 fi
 
