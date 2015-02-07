@@ -22,6 +22,8 @@ import net.beadsproject.beads.core.BeadArray;
  * to be synchronized with the AudioContext.
  */
 public class MidiMessageSource extends Bead implements Receiver {
+	public static int DEFAULT_NUM_DELAY_FRAMES = 1;
+	
 	private static class MidiMessageAndTimestamp {
 		final MidiMessage msg;
 		final long timeStamp;
@@ -34,6 +36,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 	private AudioContext ac;
 	private BeadArray listeners;
 	private double msPerFrame;
+	private int numDelayFrames;
 	private volatile long frameRtStartNanos;
 	private volatile double frameTimestampMs;
 	private Object lock;
@@ -42,9 +45,14 @@ public class MidiMessageSource extends Bead implements Receiver {
 	private long timestamp;
 	
 	public MidiMessageSource(AudioContext ac) {
+		this(ac, DEFAULT_NUM_DELAY_FRAMES);
+	}
+	
+	public MidiMessageSource(AudioContext ac, int numDelayFrames) {
 		this.ac = ac;
 		this.listeners = new BeadArray();
 		this.msPerFrame = ac.samplesToMs(ac.getBufferSize());
+		this.numDelayFrames = numDelayFrames;
 		this.lock = new Object();
 		this.received = new LinkedList<>();
 		
@@ -88,10 +96,10 @@ public class MidiMessageSource extends Bead implements Receiver {
 			double timeStampMs = frameTimestampMs + (rtOffsetNanos/1000000L);
 			
 			// Midi timestamp is the millisecond timestamp converted to
-			// microseconds, delayed by exactly one frame, to avoid any
+			// microseconds, delayed by one or more frames, to avoid any
 			// possibility of an event being scheduled for processing in
 			// current frame.
-			timeStamp = (long) ((timeStampMs + msPerFrame) * 1000.0);
+			timeStamp = (long) ((timeStampMs + (numDelayFrames*msPerFrame)) * 1000.0);
 		}
 		
 		// Add to received list

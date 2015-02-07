@@ -1,5 +1,6 @@
 package io.github.daveho.gervill4beads;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class GervillUGen extends UGen {
 	private SoftSynthesizer synth;
 	private Receiver synthRecv;
 	private AudioInputStream synthAis;
+	private byte[] sampleBuf;
 
 	public GervillUGen(AudioContext context, Map<String, Object> info) throws MidiUnavailableException {
 		super(context, 2);
@@ -35,6 +37,11 @@ public class GervillUGen extends UGen {
 		AudioFormat fmt = new AudioFormat(sampleRate, 16, 2, true, true);
 		synthAis = synth.openStream(fmt, info);
 		
+		sampleBuf = new byte[fmt.getFrameSize() * bufferSize];
+	}
+	
+	public SoftSynthesizer getSynth() {
+		return synth;
 	}
 	
 	@Override
@@ -50,11 +57,15 @@ public class GervillUGen extends UGen {
 	@Override
 	public void calculateBuffer() {
 		try {
-			DataInput din = new DataInputStream(synthAis);
+//			DataInput din = new DataInputStream(synthAis);
+			synthAis.read(sampleBuf);
+			DataInputStream din = new DataInputStream(new ByteArrayInputStream(sampleBuf));
 			for (int i = 0; i < bufferSize; i++) {
 				bufOut[0][i] = din.readShort() / (float)32768.0f;
 				bufOut[1][i] = din.readShort() / (float)32768.0f;
 			}
+//			System.out.print(":");
+//			System.out.flush();
 		} catch (IOException e) {
 			throw new RuntimeException("IOException reading data from Gervill synth", e);
 		}
