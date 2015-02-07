@@ -18,10 +18,17 @@ import net.beadsproject.beads.core.BeadArray;
  * message will be an instance of {@link MidiMessageSource} (i.e.,
  * a reference to this object), and they should call {@link #getMessage()}
  * on that object to get the actual MidiMessage, and {@link #getTimeStamp()} to
- * get the midi timestamp.  Midi timestamps should be considered
- * to be synchronized with the AudioContext.
+ * get the midi timestamp.  Midi timestamps are
+ * synchronized with the AudioContext.
+ * 
+ * @author David Hovemeyer
  */
 public class MidiMessageSource extends Bead implements Receiver {
+	/**
+	 * By default, received MidiMessages are assigned timestamps this
+	 * many frames in the future (to avoid trying to deliver midi messages
+	 * while the current frame's audio is being computed.)
+	 */
 	public static int DEFAULT_NUM_DELAY_FRAMES = 1;
 	
 	private static class MidiMessageAndTimestamp {
@@ -44,10 +51,22 @@ public class MidiMessageSource extends Bead implements Receiver {
 	private MidiMessage message;
 	private long timestamp;
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param ac the AudioContext
+	 */
 	public MidiMessageSource(AudioContext ac) {
 		this(ac, DEFAULT_NUM_DELAY_FRAMES);
 	}
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param ac              the AudioContext
+	 * @param numDelayFrames  received MidiMessages are assigned timestamps this many
+	 *                        frames in the future
+	 */
 	public MidiMessageSource(AudioContext ac, int numDelayFrames) {
 		this.ac = ac;
 		this.listeners = new BeadArray();

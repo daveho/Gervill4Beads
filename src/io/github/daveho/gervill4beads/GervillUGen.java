@@ -1,7 +1,6 @@
 package io.github.daveho.gervill4beads;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -12,18 +11,30 @@ import javax.sound.midi.Receiver;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import com.sun.media.sound.SoftSynthesizer;
-
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.UGen;
 
+import com.sun.media.sound.SoftSynthesizer;
+
+/**
+ * A UGen that generates audio using the
+ * <a href="https://java.net/projects/gervill/pages/Home">Gervill</a>
+ * software synthesizer.
+ */
 public class GervillUGen extends UGen {
 	private SoftSynthesizer synth;
 	private Receiver synthRecv;
 	private AudioInputStream synthAis;
 	private byte[] sampleBuf;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param context  the AudioContext
+	 * @param info     info, used when opening an audio input stream from the synthesizer
+	 * @throws MidiUnavailableException
+	 */
 	public GervillUGen(AudioContext context, Map<String, Object> info) throws MidiUnavailableException {
 		super(context, 2);
 		synth = new SoftSynthesizer();
@@ -40,6 +51,11 @@ public class GervillUGen extends UGen {
 		sampleBuf = new byte[fmt.getFrameSize() * bufferSize];
 	}
 	
+	/**
+	 * Get the Gervill SoftSynthesizer.
+	 * 
+	 * @return the Gervill SoftSynthesizer
+	 */
 	public SoftSynthesizer getSynth() {
 		return synth;
 	}
@@ -49,7 +65,7 @@ public class GervillUGen extends UGen {
 		if (Midi.hasMidiMessage(message)) {
 			MidiMessage msg = Midi.getMidiMessage(message);
 			long timestamp = Midi.getMidiTimestamp(message);
-			System.out.printf("GervillUGen: received midi message (ts=%d)!\n", timestamp);
+//			System.out.printf("GervillUGen: received midi message (ts=%d)!\n", timestamp);
 			synthRecv.send(msg, timestamp);
 		}
 	}
@@ -57,15 +73,12 @@ public class GervillUGen extends UGen {
 	@Override
 	public void calculateBuffer() {
 		try {
-//			DataInput din = new DataInputStream(synthAis);
 			synthAis.read(sampleBuf);
 			DataInputStream din = new DataInputStream(new ByteArrayInputStream(sampleBuf));
 			for (int i = 0; i < bufferSize; i++) {
 				bufOut[0][i] = din.readShort() / (float)32768.0f;
 				bufOut[1][i] = din.readShort() / (float)32768.0f;
 			}
-//			System.out.print(":");
-//			System.out.flush();
 		} catch (IOException e) {
 			throw new RuntimeException("IOException reading data from Gervill synth", e);
 		}

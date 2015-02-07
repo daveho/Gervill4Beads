@@ -16,6 +16,10 @@ import net.beadsproject.beads.core.AudioContext;
  * a beads AudioContext with a {@link GervillUGen} feeding
  * into the AudioContext's output, and adds the GervillUGen
  * as a listener for midi events. 
+ * 
+ * <p>When you run the demo, you should be able to play notes
+ * using the default instrument (piano) using Gervill's
+ * default sound bank.
  */
 public class Demo {
 	public static void main(String[] args) throws MidiUnavailableException {
