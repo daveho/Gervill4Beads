@@ -19,7 +19,7 @@ public class Demo {
 		Instrument[] instr = gervill.getSynth().getAvailableInstruments();
 		System.out.printf("%d available instruments\n", instr.length);
 		
-		MidiMessageSource midiSource = new MidiMessageSource(ac, 2);
+		MidiMessageSource midiSource = new MidiMessageSource(ac, 1);
 		midiSource.addMessageListener(gervill);
 		MidiDevice device = CaptureMidiEvents.getMidiInput(midiSource);
 		
