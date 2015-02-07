@@ -34,6 +34,7 @@ public class GervillUGen extends UGen {
 		// using 16 bits per sample.
 		AudioFormat fmt = new AudioFormat(sampleRate, 16, 2, true, true);
 		synthAis = synth.openStream(fmt, info);
+		
 	}
 	
 	@Override
@@ -41,6 +42,7 @@ public class GervillUGen extends UGen {
 		if (Midi.hasMidiMessage(message)) {
 			MidiMessage msg = Midi.getMidiMessage(message);
 			long timestamp = Midi.getMidiTimestamp(message);
+			System.out.printf("GervillUGen: received midi message (ts=%d)!\n", timestamp);
 			synthRecv.send(msg, timestamp);
 		}
 	}
