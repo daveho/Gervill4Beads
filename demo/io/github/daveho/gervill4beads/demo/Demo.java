@@ -10,6 +10,13 @@ import io.github.daveho.gervill4beads.GervillUGen;
 import io.github.daveho.gervill4beads.MidiMessageSource;
 import net.beadsproject.beads.core.AudioContext;
 
+/**
+ * Demo application: captures midi events from whatever input
+ * source is available (e.g., a midi keyboard), constructs
+ * a beads AudioContext with a {@link GervillUGen} feeding
+ * into the AudioContext's output, and adds the GervillUGen
+ * as a listener for midi events. 
+ */
 public class Demo {
 	public static void main(String[] args) throws MidiUnavailableException {
 		AudioContext ac = new AudioContext();
