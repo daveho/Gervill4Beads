@@ -21,9 +21,9 @@
 
 package io.github.daveho.gervill4beads;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.Map;
 
 import javax.sound.midi.MidiMessage;
@@ -50,7 +50,8 @@ public class GervillUGen extends UGen {
 	private SoftSynthesizer synth;
 	private Receiver synthRecv;
 	private AudioInputStream synthAis;
-	private byte[] sampleBuf;
+	private ByteBuffer byteBuffer;
+	private FloatBuffer floatBuffer;
 
 	/**
 	 * Constructor.
@@ -74,8 +75,12 @@ public class GervillUGen extends UGen {
 		int sampleSize = 32;
 		AudioFormat fmt = new AudioFormat(Encoding.PCM_FLOAT, sampleRate, sampleSize, 2, ((2*sampleSize)+7)/8, sampleRate, true);
 		synthAis = synth.openStream(fmt, info);
-		
-		sampleBuf = new byte[fmt.getFrameSize() * bufferSize];
+
+		// Use a ByteBuffer (with a FloatBuffer view) to store audio data
+		// produce by Gervill.  This is a simple and efficient mechanism
+		// for grabbing the data.
+		byteBuffer = ByteBuffer.allocate(fmt.getFrameSize() * bufferSize);
+		floatBuffer = byteBuffer.asFloatBuffer();
 	}
 	
 	/**
@@ -100,11 +105,10 @@ public class GervillUGen extends UGen {
 	@Override
 	public void calculateBuffer() {
 		try {
-			synthAis.read(sampleBuf);
-			DataInputStream din = new DataInputStream(new ByteArrayInputStream(sampleBuf));
+			synthAis.read(byteBuffer.array());
 			for (int i = 0; i < bufferSize; i++) {
-				bufOut[0][i] = din.readFloat();
-				bufOut[1][i] = din.readFloat();
+				bufOut[0][i] = floatBuffer.get(i*2);
+				bufOut[1][i] = floatBuffer.get(i*2 + 1);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("IOException reading data from Gervill synth", e);
