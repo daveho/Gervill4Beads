@@ -1,0 +1,28 @@
+<project name="gervill4beads" default="jar">
+	<property name="jarfile" value="gervill4beads.jar"/>
+	
+	<path id="gervill4beads.classpath">
+		<!--
+			FIXME: javac seems to find the built-in Gervill classes
+			(in the JDK runtime libraries) before our own gervill.jar.
+		-->
+		<pathelement location="lib/gervill.jar"/>
+		<pathelement location="lib/beads.jar"/>
+		<pathelement location="lib/beads-io.jar"/>
+	</path>
+	
+	<target name="build">
+		<javac bootclasspathref="gervill4beads.classpath" srcdir="src" destdir="bin" debug="true" source="1.7"/>
+	</target>
+	
+	<target name="jar" depends="build">
+		<jar basedir="bin" includes="**/*.class" destfile="${jarfile}"/>
+	</target>
+	
+	<target name="clean">
+		<delete file="${jarfile}"/>
+		<delete includeemptydirs="true">
+			<fileset dir="bin" includes="**/*"/>
+		</delete>
+	</target>
+</project>
