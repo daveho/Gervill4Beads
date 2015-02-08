@@ -97,7 +97,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		this.frameRtStartNanos = -1L;
 		this.frameTimestampMs = 0.0;
 		this.lock = new Object();
-		this.received = new TreeMap<>();
+		this.received = new TreeMap<Long, MidiMessage>();
 		
 		// Schedule a message before every audio frame: we use this
 		// to compute timestamps for incoming MidiMessages, relative
@@ -175,7 +175,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 
 		// Collect all of the messages which should be processed
 		// in this audio frame
-		List<MidiMessageAndTimestamp> toProcess = new ArrayList<>();
+		List<MidiMessageAndTimestamp> toProcess = new ArrayList<MidiMessageAndTimestamp>();
 
 		// Microsecond timestamp of end of current audio frame.
 		// Only midi messages whose timestamps are earlier than the end

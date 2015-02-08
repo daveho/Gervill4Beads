@@ -55,7 +55,7 @@ public class Demo {
 	public Demo() throws MidiUnavailableException {
 		this.ac = new AudioContext();
 		
-		this.gervill = new GervillUGen(ac, Collections.emptyMap());
+		this.gervill = new GervillUGen(ac, Collections.<String, Object>emptyMap());
 		
 		Instrument[] instr = gervill.getSynth().getAvailableInstruments();
 		System.out.printf("%d available instruments\n", instr.length);
