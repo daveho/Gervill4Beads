@@ -27,7 +27,9 @@ The repository is an Eclipse project.  Run the command `./fetchlibs.sh` to downl
 required jar files.
 
 If you run the main method of the `Demo` class, and you have a midi keyboard connected
-to your computer, you should be able to play piano.
+to your computer, you should be able to play piano.  The `DemoChoosePatch` program
+is similar, except that it allows you to choose a midi patch (see the
+[GM1 sound set](http://www.midi.org/techspecs/gm1sound.php)).
 
 ## License, contact info
 
