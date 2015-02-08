@@ -23,8 +23,9 @@ package io.github.daveho.gervill4beads;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
@@ -68,7 +69,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 	private volatile long frameRtStartNanos;
 	private volatile double frameTimestampMs;
 	private Object lock;
-	private LinkedList<MidiMessageAndTimestamp> received;
+	private TreeMap<Long, MidiMessage> received;
 	private MidiMessage message;
 	private long timestamp;
 	
@@ -96,7 +97,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		this.frameRtStartNanos = -1L;
 		this.frameTimestampMs = 0.0;
 		this.lock = new Object();
-		this.received = new LinkedList<>();
+		this.received = new TreeMap<>();
 		
 		// Schedule a message before every audio frame: we use this
 		// to compute timestamps for incoming MidiMessages, relative
@@ -144,7 +145,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 			
 			// Compute a millisecond timestamp relative to the start of the
 			// current frame
-			double timeStampMs = frameTimestampMs + (rtOffsetNanos/1000000L);
+			double timeStampMs = frameTimestampMs + (rtOffsetNanos/1000000.0);
 			
 			// Midi timestamp is the millisecond timestamp converted to
 			// microseconds, delayed by one or more frames, to avoid any
@@ -156,7 +157,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		// Add to received list
 		synchronized (lock) {
 //			System.out.printf("Queuing midi message with timestamp %d\n", timeStamp);
-			received.add(new MidiMessageAndTimestamp(message, timeStamp));
+			received.put(timeStamp, message);
 		}
 	}
 
@@ -175,16 +176,26 @@ public class MidiMessageSource extends Bead implements Receiver {
 		// Collect all of the messages which should be processed
 		// in this audio frame
 		List<MidiMessageAndTimestamp> toProcess = new ArrayList<>();
+
 		// Microsecond timestamp of end of current audio frame.
 		// Only midi messages whose timestamps are earlier than the end
 		// of this frame are scheduled for delivery.
 		double endOfFrameUs = (frameTimestampMs + msPerFrame) * 1000.0;
+
+		// Schedule all MidiMessages whose timestamps indicate this frame
+		// for dispatching to listeners
 		synchronized (lock) {
-			Iterator<MidiMessageAndTimestamp> i = received.iterator();
+			Iterator<Map.Entry<Long, MidiMessage>> i = received.entrySet().iterator();
 			while (i.hasNext()) {
-				MidiMessageAndTimestamp msgAndTs = i.next();
-				if (msgAndTs.timeStamp <= endOfFrameUs) {
-					toProcess.add(msgAndTs);
+				// Process just those messages with timestamps occurring
+				// before the end of the current frame
+				Map.Entry<Long, MidiMessage> entry = i.next();
+				if (entry.getKey() >= endOfFrameUs) {
+					// Not scheduled for this frame, can stop now
+					break;
+				} else {
+					// Schedule for dispatch
+					toProcess.add(new MidiMessageAndTimestamp(entry.getValue(), entry.getKey()));
 					i.remove();
 				}
 			}
