@@ -30,6 +30,7 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
 
 import net.beadsproject.beads.core.AudioContext;
@@ -67,8 +68,11 @@ public class GervillUGen extends UGen {
 		float sampleRate = context.getSampleRate();
 		
 		// Create an AudioFormat with same sample rate as AudioContext's,
-		// using 16 bits per sample.
-		AudioFormat fmt = new AudioFormat(sampleRate, 16, 2, true, true);
+		// using PCM_FLOAT encoding, 32 bits per sample.  This makes
+		// calculateBuffer very simple: we just pull floats from Gervill
+		// and copy them into the buffer for each output channel.
+		int sampleSize = 32;
+		AudioFormat fmt = new AudioFormat(Encoding.PCM_FLOAT, sampleRate, sampleSize, 2, ((2*sampleSize)+7)/8, sampleRate, true);
 		synthAis = synth.openStream(fmt, info);
 		
 		sampleBuf = new byte[fmt.getFrameSize() * bufferSize];
@@ -99,8 +103,8 @@ public class GervillUGen extends UGen {
 			synthAis.read(sampleBuf);
 			DataInputStream din = new DataInputStream(new ByteArrayInputStream(sampleBuf));
 			for (int i = 0; i < bufferSize; i++) {
-				bufOut[0][i] = din.readShort() / (float)32768.0f;
-				bufOut[1][i] = din.readShort() / (float)32768.0f;
+				bufOut[0][i] = din.readFloat();
+				bufOut[1][i] = din.readFloat();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("IOException reading data from Gervill synth", e);
