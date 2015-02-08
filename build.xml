@@ -12,7 +12,7 @@
 	</path>
 	
 	<target name="build">
-		<javac bootclasspathref="gervill4beads.classpath" srcdir="src" destdir="bin" debug="true" source="1.7"/>
+		<javac classpathref="gervill4beads.classpath" srcdir="src" destdir="bin" debug="true" source="1.7"/>
 	</target>
 	
 	<target name="jar" depends="build">
