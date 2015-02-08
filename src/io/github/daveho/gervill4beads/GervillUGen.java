@@ -21,6 +21,8 @@ import com.sun.media.sound.SoftSynthesizer;
  * A UGen that generates audio using the
  * <a href="https://java.net/projects/gervill/pages/Home">Gervill</a>
  * software synthesizer.
+ * 
+ * @author David Hovemeyer
  */
 public class GervillUGen extends UGen {
 	private SoftSynthesizer synth;
@@ -59,13 +61,13 @@ public class GervillUGen extends UGen {
 	public SoftSynthesizer getSynth() {
 		return synth;
 	}
-	
+
 	@Override
 	protected void messageReceived(Bead message) {
 		if (Midi.hasMidiMessage(message)) {
 			MidiMessage msg = Midi.getMidiMessage(message);
 			long timestamp = Midi.getMidiTimestamp(message);
-//			System.out.printf("GervillUGen: received midi message (ts=%d)!\n", timestamp);
+//			System.out.printf("GervillUGen: received midi message (status=%d,ts=%d)!\n", msg.getStatus(), timestamp);
 			synthRecv.send(msg, timestamp);
 		}
 	}

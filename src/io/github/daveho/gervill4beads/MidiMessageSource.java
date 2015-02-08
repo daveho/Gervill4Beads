@@ -72,6 +72,8 @@ public class MidiMessageSource extends Bead implements Receiver {
 		this.listeners = new BeadArray();
 		this.msPerFrame = ac.samplesToMs(ac.getBufferSize());
 		this.numDelayFrames = numDelayFrames;
+		this.frameRtStartNanos = -1L;
+		this.frameTimestampMs = 0.0;
 		this.lock = new Object();
 		this.received = new LinkedList<>();
 		
@@ -108,7 +110,16 @@ public class MidiMessageSource extends Bead implements Receiver {
 			
 			// Offset of this event (occurring right now, in real time)
 			// from the beginning of the frame.
-			long rtOffsetNanos = System.nanoTime() - frameRtStartNanos;
+			long rtOffsetNanos;
+			
+			if (frameRtStartNanos < 0L) {
+				// Audio processing hasn't started.  We'll schedule
+				// this message for processing at the beginning of the
+				// first frame.
+				rtOffsetNanos = 0L;
+			} else {
+				rtOffsetNanos = System.nanoTime() - frameRtStartNanos;
+			}
 			
 			// Compute a millisecond timestamp relative to the start of the
 			// current frame
@@ -123,6 +134,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		
 		// Add to received list
 		synchronized (lock) {
+//			System.out.printf("Queuing midi message with timestamp %d\n", timeStamp);
 			received.add(new MidiMessageAndTimestamp(message, timeStamp));
 		}
 	}
