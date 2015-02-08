@@ -44,7 +44,6 @@ public class DemoChoosePatch extends Demo {
 
 	@Override
 	public void start() {
-		super.start();
 		try {
 			// By sending a PROGRAM_CHANGE message to the MidiMessageSource
 			// Bead, it will be dispatched to the Gervill SoftSynthesizer
@@ -52,6 +51,7 @@ public class DemoChoosePatch extends Demo {
 		} catch (InvalidMidiDataException e) {
 			throw new RuntimeException("This should not happen", e);
 		}
+		super.start();
 	}
 	
 	public static void main(String[] args) throws MidiUnavailableException {
