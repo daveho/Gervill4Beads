@@ -53,15 +53,6 @@ public class MidiMessageSource extends Bead implements Receiver {
 	 */
 	public static int DEFAULT_NUM_DELAY_FRAMES = 1;
 	
-	private static class MidiMessageAndTimestamp {
-		final MidiMessage msg;
-		final long timeStamp;
-		public MidiMessageAndTimestamp(MidiMessage msg, long timeStamp) {
-			this.msg = msg;
-			this.timeStamp = timeStamp;
-		}
-	}
-	
 	private AudioContext ac;
 	private BeadArray listeners;
 	private double msPerFrame;
@@ -175,7 +166,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 
 		// Collect all of the messages which should be processed
 		// in this audio frame
-		List<MidiMessageAndTimestamp> toProcess = new ArrayList<MidiMessageAndTimestamp>();
+		List<MidiMessageAndTimeStamp> toProcess = new ArrayList<MidiMessageAndTimeStamp>();
 
 		// Microsecond timestamp of end of current audio frame.
 		// Only midi messages whose timestamps are earlier than the end
@@ -195,14 +186,14 @@ public class MidiMessageSource extends Bead implements Receiver {
 					break;
 				} else {
 					// Schedule for dispatch
-					toProcess.add(new MidiMessageAndTimestamp(entry.getValue(), entry.getKey()));
+					toProcess.add(new MidiMessageAndTimeStamp(entry.getValue(), entry.getKey()));
 					i.remove();
 				}
 			}
 		}
 		
 		// Notify listeners for each received message/timestamp
-		for (MidiMessageAndTimestamp msgAndTs : toProcess) {
+		for (MidiMessageAndTimeStamp msgAndTs : toProcess) {
 			message = msgAndTs.msg;
 			timestamp = msgAndTs.timeStamp;
 			listeners.messageReceived(this);
