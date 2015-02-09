@@ -15,7 +15,8 @@ the Beads `AudioContext`.
 ## Limitations
 
 Some details are currently hard-coded: for example, audio output
-from the GervillUGen is hard-coded as two channels with 16 bits per sample.
+from the GervillUGen is hard-coded as two channels with 32 bit PCM_FLOAT
+encoding.
 
 The code currently assumes that when the `GervillUGen`'s `calculateBuffer` method
 is called, a full frame of audio will be available from the `AudioInputStream`
