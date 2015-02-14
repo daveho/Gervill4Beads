@@ -113,7 +113,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 	@Override
 	public void send(MidiMessage message, long timeStamp) {
 //		System.out.println("Received midi message!");
-		
+
 		if (timeStamp < 0L) {
 			// Real-time message!
 			

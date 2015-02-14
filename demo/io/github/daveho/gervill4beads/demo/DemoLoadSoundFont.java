@@ -37,8 +37,7 @@ public class DemoLoadSoundFont extends Demo {
 	public static void main(String[] args) throws MidiUnavailableException {
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
-		System.out.print("Which sound font (.sf2) file? ");
-		String fileName = keyboard.nextLine();
+		String fileName = Util.chooseDirectoryAndFile(keyboard, ".sf2");
 		DemoLoadSoundFont demo = new DemoLoadSoundFont(fileName);
 		demo.start();
 	}
