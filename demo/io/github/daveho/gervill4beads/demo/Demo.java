@@ -21,6 +21,7 @@
 
 package io.github.daveho.gervill4beads.demo;
 
+import io.github.daveho.gervill4beads.CaptureMidiMessages;
 import io.github.daveho.gervill4beads.GervillUGen;
 import io.github.daveho.gervill4beads.MidiMessageSource;
 
@@ -86,7 +87,7 @@ public class Demo {
 	}
 
 	protected void captureMidiMessages(Receiver receiver) throws MidiUnavailableException {
-		this.device = CaptureMidiEvents.getMidiInput(receiver);
+		this.device = CaptureMidiMessages.getMidiInput(receiver);
 	}
 	
 	public void close() {

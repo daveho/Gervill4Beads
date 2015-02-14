@@ -19,21 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-package io.github.daveho.gervill4beads.demo;
+package io.github.daveho.gervill4beads;
 
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
 /**
- * Support for capturing midi input events.
+ * Support for capturing midi messages.
  * 
  * @author David Hovemeyer
  */
-public class CaptureMidiEvents {
+public class CaptureMidiMessages {
+	private static final boolean DEBUG = Boolean.getBoolean("gervill4beads.midi.debug");
+	
 	/**
 	 * Capture midi input events, dispatching them to given Receiver.
 	 * The MidiDevice returned is the device providing the input, and
@@ -50,10 +51,14 @@ public class CaptureMidiEvents {
 		for (MidiDevice.Info info : infos) {
 			MidiDevice device;
 			device = MidiSystem.getMidiDevice(info);
-			System.out.println("Found: " + device);
+			if (DEBUG) {
+				System.out.println("Found: " + device);
+			}
 			
 			int maxTransmitters = device.getMaxTransmitters();
-			System.out.println("  Max transmitters: " + maxTransmitters);
+			if (DEBUG) {
+				System.out.println("  Max transmitters: " + maxTransmitters);
+			}
 			
 			if (maxTransmitters == -1 || maxTransmitters > 0) {
 				Transmitter transmitter = device.getTransmitter();
@@ -64,41 +69,5 @@ public class CaptureMidiEvents {
 		}
 		
 		throw new MidiUnavailableException("Could not find any midi input sources");
-	}
-	
-	// Just for testing
-	static class MyReceiver implements Receiver {
-
-		@Override
-		public void send(MidiMessage message, long timeStamp) {
-			int status = message.getStatus();
-			System.out.println("Recieved MidiMessage@" + timeStamp + ", status=" + status);
-			if (status == 144) {
-				byte[] data = message.getMessage();
-				int note = data[1];
-				int velocity = data[2];
-				System.out.printf("note=%d, velocity=%d\n", note, velocity);
-			} else if (status == 128) {
-				
-			}
-		}
-
-		@Override
-		public void close() {
-			System.out.println("Closing...");
-		}
-	}
-	
-	// Just for testing
-	public static void main(String[] args) throws MidiUnavailableException {
-		getMidiInput(new MyReceiver());
-		
-		while (true) {
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				System.out.println("Interrupted?");
-			}
-		}
 	}
 }
