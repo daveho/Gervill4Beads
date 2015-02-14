@@ -22,10 +22,8 @@
 package io.github.daveho.gervill4beads;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
@@ -59,8 +57,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 	private int numDelayFrames;
 	private volatile long frameRtStartNanos;
 	private volatile double frameTimestampMs;
-	private Object lock;
-	private TreeMap<Long, MidiMessage> received;
+	private ConcurrentSkipListMap<Long, MidiMessage> received;
 	private MidiMessage message;
 	private long timestamp;
 	
@@ -87,8 +84,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		this.numDelayFrames = numDelayFrames;
 		this.frameRtStartNanos = -1L;
 		this.frameTimestampMs = 0.0;
-		this.lock = new Object();
-		this.received = new TreeMap<Long, MidiMessage>();
+		this.received = new ConcurrentSkipListMap<Long, MidiMessage>();
 		
 		// Schedule a message before every audio frame: we use this
 		// to compute timestamps for incoming MidiMessages, relative
@@ -146,10 +142,7 @@ public class MidiMessageSource extends Bead implements Receiver {
 		}
 		
 		// Add to received list
-		synchronized (lock) {
-//			System.out.printf("Queuing midi message with timestamp %d\n", timeStamp);
-			received.put(timeStamp, message);
-		}
+		received.put(timeStamp, message);
 	}
 
 	private void frameStart() {
@@ -175,21 +168,10 @@ public class MidiMessageSource extends Bead implements Receiver {
 
 		// Schedule all MidiMessages whose timestamps indicate this frame
 		// for dispatching to listeners
-		synchronized (lock) {
-			Iterator<Map.Entry<Long, MidiMessage>> i = received.entrySet().iterator();
-			while (i.hasNext()) {
-				// Process just those messages with timestamps occurring
-				// before the end of the current frame
-				Map.Entry<Long, MidiMessage> entry = i.next();
-				if (entry.getKey() >= endOfFrameUs) {
-					// Not scheduled for this frame, can stop now
-					break;
-				} else {
-					// Schedule for dispatch
-					toProcess.add(new MidiMessageAndTimeStamp(entry.getValue(), entry.getKey()));
-					i.remove();
-				}
-			}
+		Long ts;
+		while (!received.isEmpty() && (ts = received.firstKey()) < endOfFrameUs) {
+			MidiMessage value = received.remove(ts);
+			toProcess.add(new MidiMessageAndTimeStamp(value, ts));
 		}
 		
 		// Notify listeners for each received message/timestamp
