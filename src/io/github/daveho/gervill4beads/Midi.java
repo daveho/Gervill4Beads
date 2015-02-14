@@ -95,9 +95,6 @@ public class Midi {
 	 */
 	public static ShortMessage createShortMessage(byte[] data) {
 		try {
-			byte orig = data[0];
-			data[0] = (byte) ((orig | 9) & 0xff);
-			System.out.printf("Change status %d to %d\n", orig&0xff, data[0]&0xff);
 			switch (data.length) {
 			case 1:
 				return new ShortMessage(data[0] & 0xff);
