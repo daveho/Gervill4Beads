@@ -35,7 +35,6 @@ public class DemoLoadSoundFont extends Demo {
 	}
 	
 	public static void main(String[] args) throws MidiUnavailableException {
-		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		String fileName = Util.chooseDirectoryAndFile(keyboard, ".sf2");
 		DemoLoadSoundFont demo = new DemoLoadSoundFont(fileName);
