@@ -37,13 +37,12 @@ import javax.sound.midi.ShortMessage;
 public class DemoChoosePatch extends Demo {
 	private int patch;
 
-	public DemoChoosePatch(int patch) throws MidiUnavailableException {
-		super();
+	public DemoChoosePatch(int patch) {
 		this.patch = patch;
 	}
 
 	@Override
-	public void start() {
+	public void start() throws MidiUnavailableException {
 		try {
 			// By sending a PROGRAM_CHANGE message to the MidiMessageSource
 			// Bead, it will be dispatched to the Gervill SoftSynthesizer

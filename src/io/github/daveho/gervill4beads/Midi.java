@@ -21,7 +21,9 @@
 
 package io.github.daveho.gervill4beads;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiMessage;
+import javax.sound.midi.ShortMessage;
 
 import net.beadsproject.beads.core.Bead;
 
@@ -81,5 +83,35 @@ public class Midi {
 	 */
 	public static long getMidiTimestamp(Bead message) {
 		return ((MidiMessageSource)message).getTimeStamp();
+	}
+	
+	/**
+	 * Create a ShortMessage from given byte array.
+	 * Throws a RuntimeException if the data is not a valid
+	 * midi messsage.
+	 * 
+	 * @param data message data, should have between 1 and 4 bytes
+	 * @return a ShortMessage
+	 */
+	public static ShortMessage createShortMessage(byte[] data) {
+		try {
+			byte orig = data[0];
+			data[0] = (byte) ((orig | 9) & 0xff);
+			System.out.printf("Change status %d to %d\n", orig&0xff, data[0]&0xff);
+			switch (data.length) {
+			case 1:
+				return new ShortMessage(data[0] & 0xff);
+			case 2:
+				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, 0);
+			case 3:
+				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff);
+			case 4:
+				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff, data[3] & 0xff);
+			default:
+				throw new RuntimeException("Wrong data size for short message: " + data.length);
+			}
+		} catch (InvalidMidiDataException e) {
+			throw new RuntimeException("Invalid midi data", e);
+		}
 	}
 }

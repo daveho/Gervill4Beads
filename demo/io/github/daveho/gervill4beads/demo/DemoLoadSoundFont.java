@@ -16,12 +16,12 @@ import com.sun.media.sound.SoftSynthesizer;
 public class DemoLoadSoundFont extends Demo {
 	private String fileName;
 
-	public DemoLoadSoundFont(String fileName) throws MidiUnavailableException {
+	public DemoLoadSoundFont(String fileName) {
 		this.fileName = fileName;
 	}
 
 	@Override
-	public void start() {
+	public void start() throws MidiUnavailableException {
 		try {
 			SoftSynthesizer synth = gervill.getSynth();
 			

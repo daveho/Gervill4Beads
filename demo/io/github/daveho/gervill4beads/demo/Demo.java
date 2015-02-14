@@ -30,6 +30,7 @@ import javax.sound.midi.Instrument;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Receiver;
 
 import net.beadsproject.beads.core.AudioContext;
 
@@ -52,23 +53,40 @@ public class Demo {
 	protected MidiMessageSource midiSource;
 	protected MidiDevice device;
 	
-	public Demo() throws MidiUnavailableException {
-		this.ac = new AudioContext();
+	public Demo() {
+	}
+	
+	public void start() throws MidiUnavailableException {
+		createAudioContext();
 		
-		this.gervill = new GervillUGen(ac, Collections.<String, Object>emptyMap());
+		createGervill();
 		
 		Instrument[] instr = gervill.getSynth().getAvailableInstruments();
 		System.out.printf("%d available instruments\n", instr.length);
 		
-		this.midiSource = new MidiMessageSource(ac, 1);
-		midiSource.addMessageListener(gervill);
-		this.device = CaptureMidiEvents.getMidiInput(midiSource);
+		createMidiSource();
+
+		captureMidiMessages(midiSource);
 		
 		ac.out.addInput(gervill);
-	}
-	
-	public void start() {
 		ac.start();
+	}
+
+	protected void createAudioContext() {
+		this.ac = new AudioContext();
+	}
+
+	protected void createGervill() throws MidiUnavailableException {
+		this.gervill = new GervillUGen(ac, Collections.<String, Object>emptyMap());
+	}
+
+	protected void createMidiSource() {
+		this.midiSource = new MidiMessageSource(ac, 1);
+		midiSource.addMessageListener(gervill);
+	}
+
+	protected void captureMidiMessages(Receiver receiver) throws MidiUnavailableException {
+		this.device = CaptureMidiEvents.getMidiInput(receiver);
 	}
 	
 	public void close() {
