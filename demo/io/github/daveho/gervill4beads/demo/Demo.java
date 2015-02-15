@@ -23,7 +23,7 @@ package io.github.daveho.gervill4beads.demo;
 
 import io.github.daveho.gervill4beads.CaptureMidiMessages;
 import io.github.daveho.gervill4beads.GervillUGen;
-import io.github.daveho.gervill4beads.MidiMessageSource;
+import io.github.daveho.gervill4beads.ReceivedMidiMessageSource;
 
 import java.util.Collections;
 
@@ -51,7 +51,7 @@ import net.beadsproject.beads.core.AudioContext;
 public class Demo {
 	protected AudioContext ac;
 	protected GervillUGen gervill;
-	protected MidiMessageSource midiSource;
+	protected ReceivedMidiMessageSource midiSource;
 	protected MidiDevice device;
 	
 	public Demo() {
@@ -82,7 +82,7 @@ public class Demo {
 	}
 
 	protected void createMidiSource() {
-		this.midiSource = new MidiMessageSource(ac, 1);
+		this.midiSource = new ReceivedMidiMessageSource(ac, 1);
 		midiSource.addMessageListener(gervill);
 	}
 

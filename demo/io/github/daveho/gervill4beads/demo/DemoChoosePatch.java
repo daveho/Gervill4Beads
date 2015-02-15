@@ -40,9 +40,10 @@ public class DemoChoosePatch extends Demo {
 	public DemoChoosePatch(int patch) {
 		this.patch = patch;
 	}
-
+	
 	@Override
-	public void start() throws MidiUnavailableException {
+	protected void createMidiSource() {
+		super.createMidiSource();
 		try {
 			// By sending a PROGRAM_CHANGE message to the MidiMessageSource
 			// Bead, it will be dispatched to the Gervill SoftSynthesizer
@@ -50,7 +51,6 @@ public class DemoChoosePatch extends Demo {
 		} catch (InvalidMidiDataException e) {
 			throw new RuntimeException("This should not happen", e);
 		}
-		super.start();
 	}
 	
 	public static void main(String[] args) throws MidiUnavailableException {

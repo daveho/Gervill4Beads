@@ -45,14 +45,14 @@ public class DemoLoadSoundFont extends Demo {
 	}
 
 	@Override
-	public void start() throws MidiUnavailableException {
+	protected void createGervill() throws MidiUnavailableException {
+		super.createGervill();
+		
 		try {
 			SoftSynthesizer synth = gervill.getSynth();
 			
 			SF2Soundbank sb = new SF2Soundbank(new File(fileName));
 			synth.loadAllInstruments(sb);
-			
-			super.start();
 		} catch (IOException e) {
 			throw new RuntimeException("Could not load sound font", e);
 		}
