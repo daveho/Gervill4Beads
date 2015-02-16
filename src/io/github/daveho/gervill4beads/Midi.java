@@ -94,19 +94,81 @@ public class Midi {
 	 * @return a ShortMessage
 	 */
 	public static ShortMessage createShortMessage(byte[] data) {
+		switch (data.length) {
+		case 1:
+			return createShortMessage(data[0] & 0xff);
+		case 2:
+			return createShortMessage(data[0] & 0xff, data[1] & 0xff, 0);
+		case 3:
+			return createShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff);
+		case 4:
+			return createShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff, data[3] & 0xff);
+		default:
+			throw new RuntimeException("Wrong data size for short message: " + data.length);
+		}
+	}
+	
+	/**
+	 * Create a ShortMessage with one byte of data.
+	 * Throws a RuntimeException if the data is invalid.
+	 * 
+	 * @param b1 first data byte (status/channel)
+	 * @return the ShortMessage
+	 */
+	public static ShortMessage createShortMessage(int b1) {
 		try {
-			switch (data.length) {
-			case 1:
-				return new ShortMessage(data[0] & 0xff);
-			case 2:
-				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, 0);
-			case 3:
-				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff);
-			case 4:
-				return new ShortMessage(data[0] & 0xff, data[1] & 0xff, data[2] & 0xff, data[3] & 0xff);
-			default:
-				throw new RuntimeException("Wrong data size for short message: " + data.length);
-			}
+			return new ShortMessage(b1);
+		} catch (InvalidMidiDataException e) {
+			throw new RuntimeException("Invalid midi data", e);
+		}
+	}
+	
+	/**
+	 * Create a ShortMessage with two bytes of data.
+	 * Throws a RuntimeException if the data is invalid.
+	 * 
+	 * @param b1 first data byte (status/channel)
+	 * @param b2 second data byte (e.g., the note for NOTE_OFF messages)
+	 * @return the ShortMessage
+	 */
+	public static ShortMessage createShortMessage(int b1, int b2) {
+		try {
+			return new ShortMessage(b1, b2, 0);
+		} catch (InvalidMidiDataException e) {
+			throw new RuntimeException("Invalid midi data", e);
+		}
+	}
+	
+	/**
+	 * Create a ShortMessage with three bytes of data.
+	 * Throws a RuntimeException if the data is invalid.
+	 * 
+	 * @param b1 first data byte (status/channel)
+	 * @param b2 second data byte (e.g., the note for NOTE_ON messages)
+	 * @param b3 third data byte (e.g., the velocity for NOTE_ON messages)
+	 * @return the ShortMessage
+	 */
+	public static ShortMessage createShortMessage(int b1, int b2, int b3) {
+		try {
+			return new ShortMessage(b1, b2, b3);
+		} catch (InvalidMidiDataException e) {
+			throw new RuntimeException("Invalid midi data", e);
+		}
+	}
+	
+	/**
+	 * Create a ShortMessage with four bytes of data.
+	 * Throws a RuntimeException if the data is invalid.
+	 * 
+	 * @param b1 first data byte (status/channel)
+	 * @param b2 second data byte
+	 * @param b3 third data byte
+	 * @param b4 fourth data byte
+	 * @return the ShortMessage
+	 */
+	public static ShortMessage createShortMessage(int b1, int b2, int b3, int b4) {
+		try {
+			return new ShortMessage(b1, b2, b3, b4);
 		} catch (InvalidMidiDataException e) {
 			throw new RuntimeException("Invalid midi data", e);
 		}
