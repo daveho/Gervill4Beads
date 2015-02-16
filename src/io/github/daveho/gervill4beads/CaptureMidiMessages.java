@@ -21,6 +21,9 @@
 
 package io.github.daveho.gervill4beads;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -69,5 +72,29 @@ public class CaptureMidiMessages {
 		}
 		
 		throw new MidiUnavailableException("Could not find any midi input sources");
+	}
+
+	/**
+	 * Get a list of MidiDevices which are advertised as having
+	 * at least one Transmitter.
+	 * 
+	 * @return list of MidiDevices
+	 * @throws MidiUnavailableException
+	 */
+	public static List<MidiDevice> getAvailableTransmitters() throws MidiUnavailableException {
+		ArrayList<MidiDevice> result = new ArrayList<MidiDevice>();
+		
+		MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
+		for (MidiDevice.Info info : infos) {
+			MidiDevice device = MidiSystem.getMidiDevice(info);
+			
+			int maxTransmitters = device.getMaxTransmitters();
+			
+			if (maxTransmitters == -1 || maxTransmitters > 0) {
+				result.add(device);
+			}
+		}
+		
+		return result;
 	}
 }
