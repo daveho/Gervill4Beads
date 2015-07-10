@@ -91,6 +91,15 @@ public class GervillUGen extends UGen {
 	public SoftSynthesizer getSynth() {
 		return synth;
 	}
+	
+	/**
+	 * Get the SoftSynthesizer's midi Receiver.
+	 * 
+	 * @return the SoftSynthesizer's midi Receiver
+	 */
+	public Receiver getSynthRecv() {
+		return synthRecv;
+	}
 
 	@Override
 	protected void messageReceived(Bead message) {
