@@ -32,6 +32,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 
 import net.beadsproject.beads.core.AudioContext;
 
@@ -88,6 +89,16 @@ public class Demo {
 
 	protected void captureMidiMessages(Receiver receiver) throws MidiUnavailableException {
 		this.device = CaptureMidiMessages.getMidiInput(receiver);
+	}
+
+	protected void setPatch(int patch) {
+		try {
+			// By sending a PROGRAM_CHANGE message to the MidiMessageSource
+			// Bead, it will be dispatched to the Gervill SoftSynthesizer
+			midiSource.send(new ShortMessage(ShortMessage.PROGRAM_CHANGE, patch, 0), -1);
+		} catch (InvalidMidiDataException e) {
+			throw new RuntimeException("This should not happen", e);
+		}
 	}
 	
 	public void close() {

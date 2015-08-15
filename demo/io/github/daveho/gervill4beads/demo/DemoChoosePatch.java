@@ -23,9 +23,7 @@ package io.github.daveho.gervill4beads.demo;
 
 import java.util.Scanner;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.ShortMessage;
 
 /**
  * Another live playing demo: works like {@link Demo}, but
@@ -44,13 +42,7 @@ public class DemoChoosePatch extends Demo {
 	@Override
 	protected void createMidiSource() {
 		super.createMidiSource();
-		try {
-			// By sending a PROGRAM_CHANGE message to the MidiMessageSource
-			// Bead, it will be dispatched to the Gervill SoftSynthesizer
-			midiSource.send(new ShortMessage(ShortMessage.PROGRAM_CHANGE, patch, 0), -1);
-		} catch (InvalidMidiDataException e) {
-			throw new RuntimeException("This should not happen", e);
-		}
+		setPatch(this.patch);
 	}
 	
 	public static void main(String[] args) throws MidiUnavailableException {

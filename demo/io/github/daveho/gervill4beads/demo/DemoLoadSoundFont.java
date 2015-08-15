@@ -39,9 +39,11 @@ import com.sun.media.sound.SoftSynthesizer;
  */
 public class DemoLoadSoundFont extends Demo {
 	private String fileName;
+	private int patch;
 
-	public DemoLoadSoundFont(String fileName) {
+	public DemoLoadSoundFont(String fileName, int patch) {
 		this.fileName = fileName;
+		this.patch = patch;
 	}
 
 	@Override
@@ -58,10 +60,20 @@ public class DemoLoadSoundFont extends Demo {
 		}
 	}
 	
+	@Override
+	protected void createMidiSource() {
+		super.createMidiSource();
+		if (patch >= 0) {
+			setPatch(patch);
+		}
+	}
+	
 	public static void main(String[] args) throws MidiUnavailableException {
 		Scanner keyboard = new Scanner(System.in);
 		String fileName = Util.chooseDirectoryAndFile(keyboard, ".sf2");
-		DemoLoadSoundFont demo = new DemoLoadSoundFont(fileName);
+		System.out.print("Patch (-1 to use default): ");
+		int patch = keyboard.nextInt();
+		DemoLoadSoundFont demo = new DemoLoadSoundFont(fileName, patch);
 		demo.start();
 	}
 }
