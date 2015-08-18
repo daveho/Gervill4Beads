@@ -18,11 +18,15 @@ mkdir -p lib
 
 echo -n "Extracting Beads jar files..."
 for j in $jars; do
-	unzip -p Beads.zip beads/library/$j > lib/$j
-	echo -n "."
+	if [ ! -e "lib/$j" ]; then
+		unzip -p Beads.zip beads/library/$j > lib/$j
+		echo -n "."
+	fi
 done
 echo "done"
 
 echo -n "Extracting gervill jar file..."
-unzip -p gervill-1.0.zip gervill/gervill.jar > lib/gervill.jar
+if [ ! -e "lib/gervill.jar" ]; then
+	unzip -p gervill-1.0.zip gervill/gervill.jar > lib/gervill.jar
+fi
 echo "done"
