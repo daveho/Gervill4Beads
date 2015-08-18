@@ -18,5 +18,7 @@
 			<attribute name="javadoc_location" value="http://gervill.java.net/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/tritonus_aos-0.3.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/tritonus_share.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
