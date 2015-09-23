@@ -15,7 +15,7 @@ public class Util {
 		File[] files = dir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(fileExt);
+				return name.toLowerCase().endsWith(fileExt);
 			}
 		});
 		for (int i = 0; i < files.length; i++) {

@@ -4,6 +4,13 @@ This is an experiment to integrate the [Gervill](https://java.net/projects/gervi
 software synthesizer with the [Beads](http://www.beadsproject.net) library, such that a
 Gervill `SoftSynthesizer` can be added to a Beads network as an output-only UGen.
 
+Gervill is built into the Java 7 and Java 8 standard library, and Gervill4Beads
+will use the built-in version.  So, Gervill4Beads requires at least Java 7,
+and the only dependency is Beads.  Note that the classes and interfaces
+needed to read audio data from Gervill aren't made public in Java 7/8,
+and Gervill4Beads uses reflection to work around this limitation.  This is
+fairly dodgy, and could easily stop working in a future Java release.
+
 ## Midi events
 
 Gervill generates audio in response to midi events.  A class called

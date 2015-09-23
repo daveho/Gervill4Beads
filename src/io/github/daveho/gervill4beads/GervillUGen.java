@@ -22,6 +22,7 @@
 package io.github.daveho.gervill4beads;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Map;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.Synthesizer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
@@ -36,8 +38,6 @@ import javax.sound.sampled.AudioInputStream;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.Bead;
 import net.beadsproject.beads.core.UGen;
-
-import com.sun.media.sound.SoftSynthesizer;
 
 /**
  * A UGen that generates audio using the
@@ -47,7 +47,7 @@ import com.sun.media.sound.SoftSynthesizer;
  * @author David Hovemeyer
  */
 public class GervillUGen extends UGen {
-	private SoftSynthesizer synth;
+	private Synthesizer synth;
 	private Receiver synthRecv;
 	private AudioInputStream synthAis;
 	private ByteBuffer byteBuffer;
@@ -62,10 +62,26 @@ public class GervillUGen extends UGen {
 	 */
 	public GervillUGen(AudioContext context, Map<String, Object> info) throws MidiUnavailableException {
 		super(context, 2);
-		synth = new SoftSynthesizer();
 		
+		// Use reflection to instantiate a SoftSynthesizer object.
+		// We definitely do NOT want to do this via MidiSystem, since
+		//   (1) we won't necessarily get a SoftSynthesizer, and
+		//   (2) it won't allow multiple SoftSynthesizers to be open
+		//       at the same time
+		try {
+			Class<?> synthCls = Class.forName("com.sun.media.sound.SoftSynthesizer");
+			Object synthObj = synthCls.newInstance();
+			this.synth = (Synthesizer) synthObj;
+		} catch (ClassNotFoundException e) {
+			throw new MidiUnavailableException("Could not find SoftSynthesizer class: " + e.toString());
+		} catch (Throwable e) {
+			throw new MidiUnavailableException("Could not create SoftSynthesizer object: " + e.toString());
+		}
+
+		// Get the synthesizer's MIDI Receiver
 		synthRecv = synth.getReceiver();
-		
+
+		// Use the Beads AudioContext's sample rate
 		float sampleRate = context.getSampleRate();
 		
 		// Create an AudioFormat with same sample rate as AudioContext's,
@@ -74,7 +90,17 @@ public class GervillUGen extends UGen {
 		// and copy them into the buffer for each output channel.
 		int sampleSize = 32;
 		AudioFormat fmt = new AudioFormat(Encoding.PCM_FLOAT, sampleRate, sampleSize, 2, ((2*sampleSize)+7)/8, sampleRate, true);
-		synthAis = synth.openStream(fmt, info);
+
+		// The AudioSynthesizer/SoftSynthesizer types aren't exported.
+		// So, cheat and use reflection to call openStream.  There literally
+		// doesn't seem to be any other way of getting an AudioInputStream
+		// from a Synthesizer in Java!
+		try {
+			Method openStream = synth.getClass().getMethod("openStream", new Class[]{AudioFormat.class, Map.class});
+			this.synthAis = (AudioInputStream) openStream.invoke(synth, fmt, info);
+		} catch (Throwable e) {
+			throw new MidiUnavailableException("Could not get openStream method for Synthesizer: " + e.toString());
+		}
 
 		// Use a ByteBuffer (with a FloatBuffer view) to store audio data
 		// produce by Gervill.  This is a simple and efficient mechanism
@@ -88,7 +114,7 @@ public class GervillUGen extends UGen {
 	 * 
 	 * @return the Gervill SoftSynthesizer
 	 */
-	public SoftSynthesizer getSynth() {
+	public Synthesizer getSynth() {
 		return synth;
 	}
 	
@@ -123,5 +149,4 @@ public class GervillUGen extends UGen {
 			throw new RuntimeException("IOException reading data from Gervill synth", e);
 		}
 	}
-
 }

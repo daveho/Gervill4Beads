@@ -25,10 +25,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-
-import com.sun.media.sound.SF2Soundbank;
-import com.sun.media.sound.SoftSynthesizer;
+import javax.sound.midi.Soundbank;
+import javax.sound.midi.Synthesizer;
 
 /**
  * Demo to load a sound font (.sf2) file and play live.
@@ -51,11 +52,12 @@ public class DemoLoadSoundFont extends Demo {
 		super.createGervill();
 		
 		try {
-			SoftSynthesizer synth = gervill.getSynth();
-			
-			SF2Soundbank sb = new SF2Soundbank(new File(fileName));
+			Synthesizer synth = gervill.getSynth();
+			Soundbank sb = MidiSystem.getSoundbank(new File(fileName));
 			synth.loadAllInstruments(sb);
 		} catch (IOException e) {
+			throw new RuntimeException("Could not load sound font", e);
+		} catch (InvalidMidiDataException e) {
 			throw new RuntimeException("Could not load sound font", e);
 		}
 	}

@@ -2,20 +2,12 @@
 	<property name="jarfile" value="gervill4beads.jar"/>
 	
 	<path id="gervill4beads.classpath">
-		<pathelement location="lib/gervill.jar"/>
 		<pathelement location="lib/beads.jar"/>
 		<pathelement location="lib/beads-io.jar"/>
 	</path>
 	
 	<target name="build">
-		<javac classpathref="gervill4beads.classpath" srcdir="src" destdir="bin" debug="true" source="1.7">
-			<!--
-				Treat gervill.jar as an "endorsed" library so that it overrides
-				the Gervill classes that are included directly in the Java
-				runtime libraries.
-			-->
-			<compilerarg value="-Djava.endorsed.dirs=./lib"/>
-		</javac>
+		<javac classpathref="gervill4beads.classpath" srcdir="src" destdir="bin" debug="true" source="1.7"/>
 	</target>
 	
 	<target name="jar" depends="build">
